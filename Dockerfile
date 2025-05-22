@@ -20,7 +20,7 @@ RUN echo "root:123" | chpasswd && \
 
 # Set all environment variables in one ENV instruction
 ENV HADOOP_HOME=/usr/local/hadoop \
-    PATH=/usr/local/hadoop/bin:/usr/local/hadoop/\
+    PATH=/usr/local/hadoop/bin:/usr/local/hadoop/sbin:/usr/local/zookeeper/bin:$PATH \
     JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 \
     HDFS_NAMENODE_USER=hadoop \
     HDFS_DATANODE_USER=hadoop \
@@ -41,6 +41,21 @@ RUN tar -xzf /tmp/hadoop-3.3.6.tar.gz -C /usr/local/ && \
 # Copy all Hadoop config files at once
 COPY HadoopConfig/hadoop-env.sh HadoopConfig/core-site.xml HadoopConfig/hdfs-site.xml HadoopConfig/mapred-site.xml HadoopConfig/yarn-site.xml HadoopConfig/workers /usr/local/hadoop/etc/hadoop/
 RUN chown -R hadoop:hadoop /usr/local/hadoop/etc/hadoop/
+
+# Zookeeper installation and setup
+ADD https://archive.apache.org/dist/zookeeper/zookeeper-3.6.3/apache-zookeeper-3.6.3-bin.tar.gz /tmp
+RUN tar -xvf /tmp/apache-zookeeper-3.6.3-bin.tar.gz -C /usr/local/ && \
+    mv /usr/local/apache-zookeeper-3.6.3-bin /usr/local/zookeeper && \
+    rm -f /tmp/apache-zookeeper-3.6.3-bin.tar.gz && \
+    chown -R hadoop:hadoop /usr/local/zookeeper && \
+    chmod -R 777 /usr/local/zookeeper && \
+    mkdir -p /usr/local/zookeeper/data && \
+    touch /usr/local/zookeeper/data/myid && \
+    chmod -R 777 /usr/local/zookeeper/data && \
+    chown -R hadoop:hadoop /usr/local/zookeeper/data
+
+COPY zoo.cfg /usr/local/zookeeper/conf/zoo.cfg
+RUN chown hadoop:hadoop /usr/local/zookeeper/conf/zoo.cfg
 
 
 # Final setup
