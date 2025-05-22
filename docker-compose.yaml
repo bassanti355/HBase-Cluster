@@ -1,0 +1,96 @@
+
+services:
+  master1:
+    image: hadoop_cluster4:latest
+    container_name: master1
+    hostname: hadoopmaster
+    ports:
+      - "9871:9870"
+      - "8188:8088"
+      - "9000:9000"
+    networks:
+      - hadoop-net
+    environment:
+      - ZK_ID=1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://hadoopmaster:9870"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: tail -f /dev/null
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2g
+
+  master2:
+    image: hadoop_cluster4:latest
+    container_name: master2
+    hostname: hadoopmaster1
+    ports:
+      - "9872:9870"
+      - "8288:8088"
+    networks:
+      - hadoop-net
+    environment:
+      - ZK_ID=2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://hadoopmaster1:9870"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - master1
+    command: tail -f /dev/null
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2g
+
+  master3:
+    image: hadoop_cluster4:latest
+    container_name: master3
+    hostname: hadoopmaster2
+    ports:
+      - "9873:9870"
+      - "8388:8088"
+    networks:
+      - hadoop-net
+    environment:
+      - ZK_ID=3
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://hadoopmaster2:9870"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    depends_on:
+      - master2
+    command: tail -f /dev/null
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2g
+
+  slave1:
+    image: hadoop_cluster4:latest
+    container_name: slave1
+    hostname: hadoopslave
+    networks:
+      - hadoop-net
+    depends_on:
+      - master3
+    command: tail -f /dev/null
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2g
+
+
+networks:
+  hadoop-net:
+    driver: bridge
+
