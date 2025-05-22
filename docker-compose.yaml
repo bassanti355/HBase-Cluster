@@ -89,8 +89,121 @@ services:
           cpus: '1.0'
           memory: 2g
 
+  hbase-master1:
+    image: hbase-cl1
+    container_name: hbase-master1
+    hostname: hbase-master1
+    networks:
+      - hadoop-net
+    environment:
+      - HBASE_ROLE=master
+      - ZOOKEEPER_QUORUM=hadoopmaster,hadoopmaster1,hadoopmaster2
+      - HBASE_ZNODE_PARENT=/hbase
+    depends_on:
+      - master1
+      - master2
+      - master3
+      - slave1
+    ports:
+      - "16010:16010"
+      - "16000:16000"
+    volumes:
+      - hbase-logs:/var/log/hbase
+      - hbase-data:/hbase/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2g
+
+  hbase-master2:
+    image: hbase-cl1
+    container_name: hbase-master2
+    hostname: hbase-master2
+    networks:
+      - hadoop-net
+    environment:
+      - HBASE_ROLE=master
+      - ZOOKEEPER_QUORUM=hadoopmaster,hadoopmaster1,hadoopmaster2
+      - HBASE_ZNODE_PARENT=/hbase
+    depends_on:
+      - master1
+      - master2
+      - master3
+      - slave1
+    ports:
+      - "16011:16010"
+      - "16001:16000" 
+    volumes:
+      - hbase-logs:/var/log/hbase
+      - hbase-data:/hbase/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2g
+
+  regionserver1:
+    image: hbase-cl1
+    container_name: regionserver1
+    hostname: regionserver1
+    networks:
+      - hadoop-net
+    environment:
+      - HBASE_ROLE=regionserver
+      - ZOOKEEPER_QUORUM=hadoopmaster,hadoopmaster1,hadoopmaster2
+      - HBASE_ZNODE_PARENT=/hbase
+    depends_on:
+      - master1
+      - master2
+      - master3
+      - slave1
+    ports:
+      - "16020:16020"
+      - "16030:16030"
+    volumes:
+      - hbase-logs:/var/log/hbase
+      - hbase-data:/hbase/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2g
+
+  regionserver2:
+    image: hbase-cl1
+    container_name: regionserver2
+    hostname: regionserver2
+    networks:
+      - hadoop-net
+    environment:
+      - HBASE_ROLE=regionserver
+      - ZOOKEEPER_QUORUM=hadoopmaster,hadoopmaster1,hadoopmaster2
+      - HBASE_ZNODE_PARENT=/hbase
+    depends_on:
+      - master1
+      - master2
+      - master3
+      - slave1
+
+    ports:
+      - "16021:16021"
+      - "16031:16030"
+    volumes:
+      - hbase-logs:/var/log/hbase
+      - hbase-data:/hbase/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 2g
 
 networks:
   hadoop-net:
     driver: bridge
 
+volumes:
+  hbase-logs:
+    driver: local
+  hbase-data:
+    driver: local
