@@ -1,0 +1,19 @@
+# Disable table if exists
+disable 'webtable'
+drop 'webtable'
+
+# Create table with supported compression
+create 'webtable',
+  {NAME => 'content', VERSIONS => 3, TTL => 7776000, COMPRESSION => 'GZ', BLOOMFILTER => 'ROW'},
+  {NAME => 'metadata', VERSIONS => 1, TTL => 2147483647, COMPRESSION => 'GZ', BLOOMFILTER => 'ROW'},
+  {NAME => 'outlinks', VERSIONS => 2, TTL => 15552000, COMPRESSION => 'NONE', BLOOMFILTER => 'ROW'},
+  {NAME => 'inlinks', VERSIONS => 2, TTL => 15552000, COMPRESSION => 'NONE', BLOOMFILTER => 'ROW'}
+
+# Set table attributes for performance
+alter 'webtable', {METHOD => 'table_att', MAX_FILESIZE => '10737418240'}  # 10GB max region size
+
+# Enable table
+enable 'webtable'
+
+# Verify table creation
+describe 'webtable'
